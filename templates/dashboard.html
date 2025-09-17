@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - TaskLift</title>
+    <link rel="stylesheet" href="../static/css/dashboard.css">
+      <link rel="icon" href="../static/favicon_io (1)/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="page">
+        <!-- HERO -->
+        <header class="hero">
+            <div class="hero-inner container">
+                <a class="logout-link" href="/logout">
+                    <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                        <line x1="12" y1="2" x2="12" y2="12"></line>
+                    </svg>
+                    Logout
+                </a>
+
+                <div class="hero-grid">
+                    <div class="hero-media">
+                        <div class="hero-ring">
+                            TL
+                        </div>
+                    </div>
+
+                    <div class="hero-meta">
+                        <h1>TaskLift Dashboard</h1>
+                        <p>Hello, {{.Username}}! Welcome to your personal task management hub.</p>
+
+                        <div class="chips">
+                            <span class="chip">Active User</span>
+                            <span class="chip">Pro Member</span>
+                            <span class="chip">Since 2025</span>
+                        </div>
+
+                        <div class="hero-ctas">
+                            <a href="/createtasks" class="btn">Create Task</a>
+                            <a href="/ListTasks" class="btn btn-ghost">View All Tasks</a>
+                            <a href="#insights" class="btn btn-ghost">Analytics</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- sticky subnav -->
+            <nav class="subnav" aria-label="Section navigation">
+                <div class="container subnav-inner">
+                    <a href="#overview" class="subnav-link active">Overview</a>
+                    <a href="#tasks" class="subnav-link">Task Management</a>
+                    <a href="#productivity" class="subnav-link">Productivity</a>
+                    <a href="#insights" class="subnav-link">Insights</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- MAIN -->
+        <main>
+            <section id="overview" class="section container">
+                <h2 class="section-titleO">Overview</h2>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-number">24</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Completed Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">High Priority</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">92%</div>
+                        <div class="stat-label">Completion Rate</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tasks" class="section section-contrast">
+                <div class="container">
+                    <h2 class="section-title">Task Management</h2>
+                    <div class="task-grid">
+                        <div class="card">
+                            <div class="card-title">Create Task</div>
+                            <p>Start organizing your work by creating new tasks with priorities, deadlines, and categories.</p>
+                            <a href="/createtasks">Create New Task →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">List & Manage Tasks</div>
+                            <p>View all your tasks in one place. Filter, sort, and manage your entire task list efficiently.</p>
+                            <a href="/ListTasks">View All Tasks →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">Update Tasks</div>
+                            <p>Modify existing tasks, update progress, change priorities, and adjust deadlines as needed.</p>
+                            <a href="/UpdateTask">Update Tasks →</a>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">Delete Tasks</div>
+                            <p>Clean up your workspace by removing completed or cancelled tasks you no longer need.</p>
+                            <a href="/DeleteTask">Delete Tasks →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="productivity" class="section container">
+                <h2 class="section-title">Productivity Tools</h2>
+                <div class="overview-grid">
+                    <div class="card">
+                        <div class="card-title">Quick Actions</div>
+                        <p>Frequently used actions at your fingertips.</p>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <a href="/createtasks" style="background: #c97a5a; color: white; padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem;">+ New Task</a>
+                            <a href="/ListTasks" style="background: #c97a5a; color: white; padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem;">View Tasks</a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Recent Activity</div>
+                        <p>Your latest task updates and achievements.</p>
+                        <div style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                            <div style="margin-bottom: 0.5rem;">• Completed "Review project proposal"</div>
+                            <div style="margin-bottom: 0.5rem;">• Created 3 new tasks</div>
+                            <div>• Updated "Design mockups" priority</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="insights" class="section section-contrast">
+                <div class="container">
+                    <h2 class="section-title">Insights & Analytics</h2>
+                    <div class="card">
+                        <div class="card-title">Performance Metrics</div>
+                        <p>Track your productivity trends and task completion patterns over time.</p>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn" style="background: #c97a5a; border: none; cursor: pointer;">View Detailed Analytics →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 TaskLift. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../static/js/dashboard.js"></script>
+</body>
+</html>
