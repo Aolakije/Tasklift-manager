@@ -13,10 +13,35 @@ min-height: auto;
   src: url('../Fonts/Anurati.otf') format('opentype'); 
 }
 .header {
-font-family: 'Anurati', sans-serif;
-text-align: center;
-padding: 20px;
-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ 
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4c0ce2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.logo-text {
+    font-family: 'Anurati', sans-serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: white;
 }
 .form-container {
 display: flex;
