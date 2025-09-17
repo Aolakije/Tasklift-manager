@@ -1,161 +1,316 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - TaskLift</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskLift Dashboard</title>
     <link rel="stylesheet" href="../static/css/dashboard.css">
-      <link rel="icon" href="../static/favicon_io (1)/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="page">
-        <!-- HERO -->
-        <header class="hero">
-            <div class="hero-inner container">
-                <a class="logout-link" href="/logout">
-                    <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                        <line x1="12" y1="2" x2="12" y2="12"></line>
-                    </svg>
-                    Logout
-                </a>
-
-                <div class="hero-grid">
-                    <div class="hero-media">
-                        <div class="hero-ring">
-                            TL
-                        </div>
-                    </div>
-
-                    <div class="hero-meta">
-                        <h1>TaskLift Dashboard</h1>
-                        <p>Hello, {{.Username}}! Welcome to your personal task management hub.</p>
-
-                        <div class="chips">
-                            <span class="chip">Active User</span>
-                            <span class="chip">Pro Member</span>
-                            <span class="chip">Since 2025</span>
-                        </div>
-
-                        <div class="hero-ctas">
-                            <a href="/createtasks" class="btn">Create Task</a>
-                            <a href="/ListTasks" class="btn btn-ghost">View All Tasks</a>
-                            <a href="#insights" class="btn btn-ghost">Analytics</a>
-                        </div>
-                    </div>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">.TLM</div>
+                    <span class="logo-text">TaskLift</span>
                 </div>
             </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">📊</div>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">👥</div>
+                        <span>Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">📋</div>
+                        <span>Tasks</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">📈</div>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">📄</div>
+                        <span>Documents</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <div class="nav-icon">📝</div>
+                        <span>Notes</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-            <!-- sticky subnav -->
-            <nav class="subnav" aria-label="Section navigation">
-                <div class="container subnav-inner">
-                    <a href="#overview" class="subnav-link active">Overview</a>
-                    <a href="#tasks" class="subnav-link">Task Management</a>
-                    <a href="#productivity" class="subnav-link">Productivity</a>
-                    <a href="#insights" class="subnav-link">Insights</a>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search tasks, projects..." class="search-input">
                 </div>
-            </nav>
-        </header>
-
-        <!-- MAIN -->
-        <main>
-            <section id="overview" class="section container">
-                <h2 class="section-titleO">Overview</h2>
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-number">24</div>
-                        <div class="stat-label">Total Tasks</div>
+                
+                <div class="user-actions">
+                    <button class="notification-btn">🔔</button>
+                    <button class="settings-btn">⚙️</button>
+                    <div class="user-profile">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%236366f1'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='Arial' font-size='14' font-weight='bold'%3EU%3C/text%3E%3C/svg%3E" alt="User" class="user-avatar">
+                        <div class="user-info">
+                            <span class="user-name">{{.Username}}</span>
+                            <span class="user-role">Pro Member</span>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number">8</div>
-                        <div class="stat-label">Completed Today</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">5</div>
-                        <div class="stat-label">High Priority</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">92%</div>
-                        <div class="stat-label">Completion Rate</div>
-                    </div>
+                    <a class="logout-link" href="/logout">
+                        <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                        Logout
+                    </a>
                 </div>
-            </section>
+            </header>
 
-            <section id="tasks" class="section section-contrast">
-                <div class="container">
-                    <h2 class="section-title">Task Management</h2>
-                    <div class="task-grid">
-                        <div class="card">
-                            <div class="card-title">Create Task</div>
-                            <p>Start organizing your work by creating new tasks with priorities, deadlines, and categories.</p>
-                            <a href="/createtasks">Create New Task →</a>
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card clients">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">Active Tasks</div>
+                            <div class="stat-change positive">+12% from last month</div>
                         </div>
-
-                        <div class="card">
-                            <div class="card-title">List & Manage Tasks</div>
-                            <p>View all your tasks in one place. Filter, sort, and manage your entire task list efficiently.</p>
-                            <a href="/ListTasks">View All Tasks →</a>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-title">Update Tasks</div>
-                            <p>Modify existing tasks, update progress, change priorities, and adjust deadlines as needed.</p>
-                            <a href="/UpdateTask">Update Tasks →</a>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-title">Delete Tasks</div>
-                            <p>Clean up your workspace by removing completed or cancelled tasks you no longer need.</p>
-                            <a href="/DeleteTask">Delete Tasks →</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="productivity" class="section container">
-                <h2 class="section-title">Productivity Tools</h2>
-                <div class="overview-grid">
-                    <div class="card">
-                        <div class="card-title">Quick Actions</div>
-                        <p>Frequently used actions at your fingertips.</p>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                            <a href="/createtasks" style="background: #c97a5a; color: white; padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem;">+ New Task</a>
-                            <a href="/ListTasks" style="background: #c97a5a; color: white; padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem;">View Tasks</a>
+                        <div class="stat-indicator">
+                            <div class="indicator-dots">
+                                <span class="dot active"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-title">Recent Activity</div>
-                        <p>Your latest task updates and achievements.</p>
-                        <div style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
-                            <div style="margin-bottom: 0.5rem;">• Completed "Review project proposal"</div>
-                            <div style="margin-bottom: 0.5rem;">• Created 3 new tasks</div>
-                            <div>• Updated "Design mockups" priority</div>
+                    <div class="stat-card revenue">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-number">92%</div>
+                            <div class="stat-label">Completion Rate</div>
+                            <div class="stat-change positive">+8% from last month</div>
+                        </div>
+                        <div class="stat-indicator">
+                            <div class="indicator-dots">
+                                <span class="dot active"></span>
+                                <span class="dot active"></span>
+                                <span class="dot"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card projects">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Projects</div>
+                            <div class="stat-change positive">+3 from last month</div>
+                        </div>
+                        <div class="stat-indicator">
+                            <div class="indicator-dots">
+                                <span class="dot active"></span>
+                                <span class="dot active"></span>
+                                <span class="dot active"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <section id="insights" class="section section-contrast">
-                <div class="container">
-                    <h2 class="section-title">Insights & Analytics</h2>
-                    <div class="card">
-                        <div class="card-title">Performance Metrics</div>
-                        <p>Track your productivity trends and task completion patterns over time.</p>
-                        <div style="margin-top: 1.5rem;">
-                            <button class="btn" style="background: #c97a5a; border: none; cursor: pointer;">View Detailed Analytics →</button>
+                <!-- Main Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Analytics Card -->
+                    <div class="dashboard-card analytics-card">
+                        <div class="card-header">
+                            <h3>📊 Task Analytics</h3>
+                            <button class="card-menu">⋯</button>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="analytics-toggle">
+                                <button class="toggle-btn active">Actual</button>
+                                <button class="toggle-btn">AI Projected</button>
+                            </div>
+                            <p class="analytics-tip">Better task organization can boost productivity and reduce overtime. Try priority tagging and deadline tracking!</p>
+                            <button class="run-analysis-btn">Run Analysis</button>
+                        </div>
+                    </div>
+
+                    <!-- Earnings Chart -->
+                    <div class="dashboard-card earnings-card">
+                        <div class="card-header">
+                            <h3>Task Completion Last 30 Days</h3>
+                            <button class="card-menu">⋯</button>
+                        </div>
+                        <div class="earnings-content">
+                            <div class="earnings-chart">
+                                <div class="chart-bar" style="height: 40%"></div>
+                                <div class="chart-bar" style="height: 60%"></div>
+                                <div class="chart-bar" style="height: 80%"></div>
+                                <div class="chart-bar" style="height: 45%"></div>
+                                <div class="chart-bar" style="height: 70%"></div>
+                                <div class="chart-bar" style="height: 90%"></div>
+                                <div class="chart-bar" style="height: 85%"></div>
+                            </div>
+                            <div class="earnings-stats">
+                                <div class="earning-item">
+                                    <div class="earning-icon">📅</div>
+                                    <div class="earning-info">
+                                        <span class="earning-label">Completed</span>
+                                        <span class="earning-value">156</span>
+                                    </div>
+                                </div>
+                                <div class="earning-item">
+                                    <div class="earning-icon">⏳</div>
+                                    <div class="earning-info">
+                                        <span class="earning-label">In Progress</span>
+                                        <span class="earning-value">24</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Priority Tasks -->
+                    <div class="dashboard-card priority-card">
+                        <div class="card-header">
+                            <h3>Priority Tasks</h3>
+                            <a href="#" class="see-all">See All</a>
+                        </div>
+                        <div class="priority-content">
+                            <div class="priority-item">
+                                <div class="priority-indicator high"></div>
+                                <div class="priority-info">
+                                    <span class="priority-label">Follow-ups</span>
+                                    <span class="priority-count">3/4 Completed</span>
+                                </div>
+                                <span class="priority-date">Apr 1</span>
+                            </div>
+                            <div class="priority-item">
+                                <div class="priority-indicator medium"></div>
+                                <div class="priority-info">
+                                    <span class="priority-label">Contract Review</span>
+                                    <span class="priority-count">1/2 Completed</span>
+                                </div>
+                                <span class="priority-date">Apr 2</span>
+                            </div>
+                            <div class="priority-item">
+                                <div class="priority-indicator low"></div>
+                                <div class="priority-info">
+                                    <span class="priority-label">Documentation</span>
+                                    <span class="priority-count">1/5 Completed</span>
+                                </div>
+                                <span class="priority-date">Apr 3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Management -->
+                    <div class="dashboard-card projects-card">
+                        <div class="card-header">
+                            <h3>Manage Projects</h3>
+                            <button class="card-menu">⋯</button>
+                        </div>
+                        <div class="projects-content">
+                            <div class="project-filters">
+                                <button class="filter-btn active">Priority</button>
+                                <button class="filter-btn">Active 4</button>
+                                <button class="filter-btn">Completed</button>
+                                <button class="filter-btn">Cancelled</button>
+                                <button class="filter-btn">Recommended 3</button>
+                            </div>
+                            <div class="project-item">
+                                <div class="project-avatar">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23f59e0b'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='Arial' font-size='12' font-weight='bold'%3EST%3C/text%3E%3C/svg%3E" alt="Project">
+                                </div>
+                                <div class="project-info">
+                                    <span class="project-name">Sophie T.</span>
+                                    <span class="project-desc">Garden Grove Designs</span>
+                                </div>
+                                <div class="project-status">
+                                    <span class="status-indicator active"></span>
+                                    <span class="status-text">Active</span>
+                                </div>
+                                <button class="project-menu">⋯</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Assistant -->
+                    <div class="dashboard-card assistant-card">
+                        <div class="assistant-header">
+                            <div class="assistant-greeting">
+                                <span class="greeting-text">Hi, {{.Username}}! 👋</span>
+                                <h3>How can I help you?</h3>
+                            </div>
+                        </div>
+                        <div class="assistant-actions">
+                            <button class="action-btn">
+                                <div class="action-icon">🤖</div>
+                                <span>AI Assistant</span>
+                            </button>
+                            <button class="action-btn">
+                                <div class="action-icon">💬</div>
+                                <span>Quick Chat</span>
+                            </button>
+                            <button class="action-btn">
+                                <div class="action-icon">🔍</div>
+                                <span>Deep Search</span>
+                            </button>
+                            <button class="action-btn">
+                                <div class="action-icon">📝</div>
+                                <span>Text Assistance</span>
+                            </button>
+                            <button class="action-btn">
+                                <div class="action-icon">⚙️</div>
+                                <span>Process Automation</span>
+                            </button>
+                            <button class="action-btn">
+                                <div class="action-icon">👥</div>
+                                <span>Team Collaboration</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </section>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-btn primary">
+                        <span class="btn-icon">+</span>
+                        Create Task
+                    </button>
+                    <button class="quick-btn secondary">
+                        <span class="btn-icon">📋</span>
+                        View All Tasks
+                    </button>
+                    <button class="quick-btn secondary">
+                        <span class="btn-icon">📊</span>
+                        Analytics
+                    </button>
+                </div>
+            </div>
         </main>
     </div>
-
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 TaskLift. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="../static/js/dashboard.js"></script>
+ <script src="../static/js/dashboard.js"></script>
 </body>
 </html>
