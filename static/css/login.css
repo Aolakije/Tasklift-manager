@@ -4,7 +4,8 @@ margin: 0px;
 box-sizing: border-box;
 }
 body {
-background: linear-gradient(135deg, #2d1b69, #11001c, #2d1b69); font-family: Arial, sans-serif;
+background: linear-gradient(135deg, #2d1b69, #11001c, #2d1b69); 
+font-family: Arial, sans-serif;
 min-height: auto;
 }
 @font-face {
