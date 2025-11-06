@@ -12,7 +12,7 @@ import (
 )
 
 // Helper function to get current user ID from session
-func getCurrentUserID(r *http.Request) (int, error) {
+func GetCurrentUserID(r *http.Request) (int, error) {
 	cookie, err := r.Cookie("session_user")
 	if err != nil {
 		return 0, err
@@ -27,7 +27,6 @@ func getCurrentUserID(r *http.Request) (int, error) {
 	return userID, nil
 }
 
-
 // Task Handlers
 func ListTasks(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -36,7 +35,7 @@ func ListTasks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get current user ID
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -113,7 +112,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		// Get current user ID
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -168,7 +167,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -213,7 +212,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -240,7 +239,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 func APITasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -281,7 +280,7 @@ func APITasks(w http.ResponseWriter, r *http.Request) {
 func APIAnalytics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -319,7 +318,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -370,7 +369,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 func ListProjects(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -437,7 +436,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -480,7 +479,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 
 func DeleteProject(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -512,7 +511,7 @@ func DeleteProject(w http.ResponseWriter, r *http.Request) {
 // Note Handlers
 func CreateNote(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -542,7 +541,7 @@ func CreateNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListNotes(w http.ResponseWriter, r *http.Request) {
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -576,7 +575,7 @@ func ListNotes(w http.ResponseWriter, r *http.Request) {
 
 func UpdateNote(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -609,7 +608,7 @@ func UpdateNote(w http.ResponseWriter, r *http.Request) {
 
 func DeleteNote(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		userID, err := getCurrentUserID(r)
+		userID, err := GetCurrentUserID(r)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -633,7 +632,7 @@ func DeleteNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func Documents(w http.ResponseWriter, r *http.Request) {
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -683,7 +682,7 @@ func Documents(w http.ResponseWriter, r *http.Request) {
 }
 
 func Analytics(w http.ResponseWriter, r *http.Request) {
-	userID, err := getCurrentUserID(r)
+	userID, err := GetCurrentUserID(r)
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
