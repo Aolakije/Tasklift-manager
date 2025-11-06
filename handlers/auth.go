@@ -13,6 +13,19 @@ var DB *sql.DB
 func InitAuthHandler(db *sql.DB) {
 	DB = db
 }
+
+// Middleware to check authentication
+func requireAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := getCurrentUserID(r)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		next(w, r)
+	}
+}
+
 func Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		http.ServeFile(w, r, "./templates/login.html")
