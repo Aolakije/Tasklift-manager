@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"task-manager/handlers"
+	"task-manager/middleware"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -92,48 +93,40 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// Auth routes
-	mux.HandleFunc("/", handlers.Register)
+	mux.HandleFunc("/", handlers.Login)
 	mux.HandleFunc("/login", handlers.Login)
+	mux.HandleFunc("/register", handlers.Register)
 	mux.HandleFunc("/logout", handlers.Logout)
 
 	// Dashboard routes
-	mux.HandleFunc("/dashboard", handlers.Dashboard)
+	mux.HandleFunc("/dashboard", middleware.RequireAuth(handlers.Dashboard))
 	mux.HandleFunc("/overview", handlers.Dashboard) // Alias to dashboard
 
 	// Task management routes
+	mux.HandleFunc("/api/tasks", handlers.APITasks)
+	mux.HandleFunc("/tasks", handlers.ListTasks)
 	mux.HandleFunc("/createtasks", handlers.CreateTask)
-	mux.HandleFunc("/taskslist", handlers.ListTasks)
-	mux.HandleFunc("/tasks", handlers.ListTasks) // Alias
-	mux.HandleFunc("/tasksupdate", handlers.UpdateTask)
-	mux.HandleFunc("/tasksdelete", handlers.DeleteTask)
+	mux.HandleFunc("/updatetasks", handlers.UpdateTask)
+	mux.HandleFunc("/deletetasks", handlers.DeleteTask)
 
 	// Project management routes
-	mux.HandleFunc("/projects", handlers.ListProjects)
-	mux.HandleFunc("/projects/create", handlers.CreateProject)
-	mux.HandleFunc("/projects/update", handlers.UpdateProject)
-	mux.HandleFunc("/projects/delete", handlers.DeleteProject)
-
-	// Note management routes
-	mux.HandleFunc("/notes", handlers.ListNotes)
-	mux.HandleFunc("/notes/create", handlers.CreateNote)
-	mux.HandleFunc("/notes/update", handlers.UpdateNote)
-	mux.HandleFunc("/notes/delete", handlers.DeleteNote)
-
-	// Document management routes (placeholder for now)
-	mux.HandleFunc("/documents", handlers.Documents)
-	mux.HandleFunc("/analytics", handlers.Analytics)
-
-	// API routes for AJAX calls
-	mux.HandleFunc("/api/tasks", handlers.APITasks)
-	mux.HandleFunc("/api/analytics", handlers.APIAnalytics)
 	mux.HandleFunc("/api/projects", handlers.ListProjects)
 	mux.HandleFunc("/api/projects/create", handlers.CreateProject)
 	mux.HandleFunc("/api/projects/update", handlers.UpdateProject)
 	mux.HandleFunc("/api/projects/delete", handlers.DeleteProject)
+
+	// Note management routes
 	mux.HandleFunc("/api/notes", handlers.ListNotes)
 	mux.HandleFunc("/api/notes/create", handlers.CreateNote)
 	mux.HandleFunc("/api/notes/update", handlers.UpdateNote)
 	mux.HandleFunc("/api/notes/delete", handlers.DeleteNote)
+
+	// Document management routes (placeholder for now)
+	mux.HandleFunc("/api/analytics", handlers.APIAnalytics)
+	mux.HandleFunc("/analytics", handlers.Analytics)
+
+	// Document routes (protected)
+	mux.HandleFunc("/documents", handlers.Documents)
 
 	// Quick action routes (aliases for convenience)
 	mux.HandleFunc("/create-task", handlers.CreateTask)
