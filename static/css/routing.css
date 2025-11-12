@@ -90,26 +90,6 @@
     padding: 1rem;
 }
 
-.task-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #f1f5f9;
-    transition: all 0.3s ease;
-}
-
-.task-item:last-child {
-    border-bottom: none;
-}
-
-.task-item:hover {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
 .task-checkbox {
     width: 18px;
     height: 18px;
@@ -231,13 +211,13 @@
 
 /* Enhanced task item styles with project info */
 .task-item {
-    position: relative;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1rem 1rem 1.5rem;
     background: white;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    margin-bottom: 0.75rem;
 }
 
 .task-item::before {
