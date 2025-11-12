@@ -178,7 +178,6 @@ class TaskLiftRouter {
                 const statusText = task.done ? 'Completed' : 'Pending';
                 
                 div.innerHTML = `
-                    <div class="priority-indicator ${priorityClass}"></div>
                     <div class="priority-info">
                         <span class="priority-label">${this.escapeHtml(task.description.substring(0, 30))}${task.description.length > 30 ? '...' : ''}</span>
                         <span class="priority-count">${statusText}</span>
@@ -220,7 +219,7 @@ class TaskLiftRouter {
                 
                 div.innerHTML = `
                     <div class="project-avatar">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #6c7d36; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                             ${initial}
                         </div>
                     </div>
