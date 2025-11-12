@@ -1,0 +1,402 @@
+/* ===== SUPPLEMENTARY STYLES (NO CONFLICTS) ===== */
+/* Only adds missing styles not in your existing dashboard.css */
+
+/* Page Content Routing */
+.page-content {
+    display: none;
+}
+
+.page-content.active {
+    display: block;
+}
+
+.content-container {
+    flex: 1;
+}
+
+/* Task List Container */
+.task-list-container {
+    min-height: 200px;
+}
+
+/* Project Details (enhanced) */
+.project-details {
+    padding: 1rem;
+}
+
+.project-details p {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.project-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Enhanced Modal for your theme */
+.modal {
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    border: 2px solid #2d1b69;
+    box-shadow: 0 20px 60px rgba(45, 27, 105, 0.3);
+}
+
+/* Form inputs matching your theme */
+.form-input:focus {
+    border-color: #2d1b69;
+    box-shadow: 0 0 0 3px rgba(45, 27, 105, 0.1);
+}
+
+/* Buttons matching your theme */
+.btn-primary {
+    background: linear-gradient(135deg, #2d1b69, #11001c);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: hsl(19, 81%, 50%);
+    transform: translateY(-1px);
+}
+
+.create-btn {
+    background: linear-gradient(135deg, #2d1b69, #11001c);
+}
+
+.create-btn:hover {
+    background: hsl(19, 81%, 50%);
+}
+
+/* Task filter active state matching your theme */
+.task-filters .filter-btn.active {
+    background: hsl(19, 81%, 50%);
+    color: white;
+    border-color: hsl(19, 81%, 50%);
+}
+
+/* Project status badges refined */
+.project-status-badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced hover effects for task items */
+.task-item:hover {
+    background: linear-gradient(90deg, rgba(45, 27, 105, 0.02), transparent);
+}
+
+/* Task actions buttons with theme */
+.btn-icon:hover {
+    background: rgba(45, 27, 105, 0.1);
+    color: #2d1b69;
+}
+
+/* Analytics stats grid enhanced */
+#analytics-stats .stat-card {
+    background: white;
+    transition: all 0.3s ease;
+}
+
+#analytics-stats .stat-card:hover {
+    border-color: #2d1b69;
+    box-shadow: 0 4px 12px rgba(45, 27, 105, 0.15);
+}
+
+/* Notes grid enhanced */
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Note card enhanced */
+.note-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.note-card:hover {
+    border-color: #2d1b69;
+    box-shadow: 0 4px 12px rgba(45, 27, 105, 0.1);
+}
+
+/* Document grid matching notes */
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Empty states enhanced */
+.no-tasks, .no-projects, .no-notes {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.no-tasks p, .no-projects p, .no-notes p {
+    margin: 0;
+}
+
+/* Loading states */
+.loading-tasks {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #cbd5e1;
+    font-size: 0.875rem;
+}
+
+/* Error states */
+.error {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #ef4444;
+    font-size: 0.875rem;
+    background: #fee2e2;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+/* Task count badge */
+#task-count {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Analytics completion rate text */
+#analytics-completion-rate,
+#analytics-total-tasks {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* Recent tasks/projects lists */
+#recent-tasks-list,
+#recent-projects-list {
+    min-height: 100px;
+}
+
+/* Stat change indicators enhanced */
+.stat-change {
+    margin-top: 0.5rem;
+}
+
+/* Priority indicators in overview */
+.priority-item:first-child {
+    padding-top: 0;
+}
+
+/* Modal close button enhanced */
+.close-btn:hover {
+    background: rgba(45, 27, 105, 0.1);
+    color: #2d1b69;
+}
+
+/* Form groups spacing */
+.task-form .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Select styling */
+select.form-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+/* Task meta info spacing */
+.task-meta > * {
+    white-space: nowrap;
+}
+
+/* Project meta info spacing */
+.project-meta > * {
+    white-space: nowrap;
+}
+
+/* Insight content padding */
+.insights-content {
+    padding: 1.5rem;
+}
+
+/* Chart placeholder */
+.chart-placeholder {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.analytics-chart {
+    padding: 1.5rem;
+}
+
+/* Task statistics container */
+#task-statistics {
+    padding: 1.5rem;
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 85vh;
+    }
+    
+    .task-item {
+        padding: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .task-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 8px;
+    }
+    
+    .task-meta {
+        width: 100%;
+    }
+    
+    .notes-grid,
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 1rem;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .task-filters {
+        gap: 6px;
+    }
+    
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .page-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .create-btn {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+}
+
+/* Animations for page transitions */
+.page-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus visible for accessibility */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.create-btn:focus-visible,
+.filter-btn:focus-visible {
+    outline: 2px solid #2d1b69;
+    outline-offset: 2px;
+}
+
+/* Smooth scrolling for modal content */
+.modal-content {
+    scroll-behavior: smooth;
+}
+
+/* Better checkbox styling */
+.task-checkbox input[type="checkbox"] {
+    accent-color: #2d1b69;
+    cursor: pointer;
+}
+
+/* Enhanced priority badges */
+.task-priority {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* Better contrast for completed tasks */
+.task-description.completed {
+    opacity: 0.6;
+}
+
+/* Loading spinner matching theme */
+.spinner {
+    border-top-color: #2d1b69;
+}
+
+/* Status indicator animation */
+.status-indicator {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Hover effect for cards */
+.dashboard-card:hover,
+.stat-card:hover {
+    border-color: rgba(45, 27, 105, 0.3);
+}
+
+/* Print-friendly overrides */
+@media print {
+    .modal {
+        display: none;
+    }
+    
+    .page-content:not(.active) {
+        display: none;
+    }
+}
