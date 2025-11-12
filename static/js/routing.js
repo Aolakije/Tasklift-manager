@@ -1,5 +1,4 @@
-// TaskLift Dashboard - Client-side routing and functionality
-// File: static/js/routing.js
+// TaskLift Dashboard - Unified routing and functionality
 
 // Client-side routing system
 class TaskLiftRouter {
@@ -14,6 +13,8 @@ class TaskLiftRouter {
         };
         
         this.currentRoute = 'overview';
+        this.allTasks = [];
+        this.currentFilter = 'all';
         this.init();
     }
 
@@ -90,13 +91,16 @@ class TaskLiftRouter {
                     await this.loadAnalytics();
                     break;
                 case 'overview':
-                    await this.loadOverviewStats();
+                    await this.loadOverview();
                     break;
                 case 'projects':
                     await this.loadProjects();
                     break;
                 case 'notes':
                     await this.loadNotes();
+                    break;
+                case 'documents':
+                    await this.loadDocuments();
                     break;
             }
         } catch (error) {
@@ -108,403 +112,343 @@ class TaskLiftRouter {
         }
     }
 
-    async loadProjects() {
-        try {
-            const response = await fetch('/api/projects');
-            const projects = await response.json();
-            renderProjects(projects);
-        } catch (error) {
-            console.error('Error loading projects:', error);
-            const container = document.getElementById('projects-container');
-            if (container) {
-                container.innerHTML = '<div class="error">Error loading projects. Please try again.</div>';
-            }
-        }
-    }
-
-    async loadNotes() {
-        try {
-            const response = await fetch('/api/notes');
-            const notes = await response.json();
-            renderNotes(notes);
-        } catch (error) {
-            console.error('Error loading notes:', error);
-            const container = document.getElementById('notes-container');
-            if (container) {
-                container.innerHTML = '<div class="error">Error loading notes. Please try again.</div>';
-            }
-        }
-    }
-
-    async loadTasks() {
-    try {
-        console.log('Loading tasks from /api/tasks...');
-        
-        const response = await fetch('/api/tasks', {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-        
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const tasks = await response.json();
-        console.log('Raw tasks data:', tasks);
-        console.log('Number of tasks:', tasks.length);
-        
-        if (tasks.length > 0) {
-            console.log('First task structure:', tasks[0]);
-            console.log('First task ID:', tasks[0].ID || tasks[0].id);
-            console.log('First task description:', tasks[0].Description || tasks[0].description);
-        }
-        
-        this.renderTasks(tasks);
-    } catch (error) {
-        console.error('Error loading tasks:', error);
-        const container = document.getElementById('tasks-container');
-        if (container) {
-            container.innerHTML = `<div class="error">Error loading tasks: ${error.message}</div>`;
-        }
-    }
-}
-
-    renderTasks(tasks) {
-    const container = document.getElementById('tasks-container');
-    const taskCount = document.getElementById('task-count');
-    
-    console.log('Rendering tasks:', tasks); // Debug log to see the actual data structure
-    
-    if (taskCount) {
-        taskCount.textContent = `${tasks.length} tasks`;
-    }
-    
-    if (!container) {
-        console.error('Tasks container not found');
-        return;
-    }
-
-    if (tasks.length === 0) {
-        container.innerHTML = '<div class="no-tasks">No tasks found. Create your first task!</div>';
-        return;
-    }
-
-    const tasksHTML = tasks.map(task => {
-        // Handle both uppercase and lowercase ID
-        const taskId = task.ID || task.id;
-        const taskDescription = task.Description || task.description;
-        const taskDone = task.Done !== undefined ? task.Done : task.done;
-        
-        if (!taskId) {
-            console.error('Task missing ID:', task);
-            return '';
-        }
-        
-        return `
-            <div class="task-item ${taskDone ? 'completed' : ''}" data-task-id="${taskId}">
-                <input type="checkbox" class="task-checkbox" ${taskDone ? 'checked' : ''} 
-                       onchange="toggleTask(${taskId}, this.checked)">
-                <div class="task-content">
-                    <span class="task-title">${taskDescription || 'No description'}</span>
-                    <span class="task-id">ID: ${taskId}</span>
-                </div>
-                <div class="task-actions">
-                    <button class="task-action edit" onclick="editTask(${taskId})">Edit</button>
-                    <button class="task-action delete" onclick="deleteTask(${taskId})">Delete</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = tasksHTML;
-    console.log('Tasks rendered successfully');
-}
-    async loadAnalytics() {
-        try {
-            const response = await fetch('/api/analytics');
-            const analytics = await response.json();
-            this.renderAnalytics(analytics);
-        } catch (error) {
-            console.error('Error loading analytics:', error);
-        }
-    }
-
-    renderAnalytics(analytics) {
-        const statsContainer = document.getElementById('analytics-stats');
-        const completionRateEl = document.getElementById('analytics-completion-rate');
-        
-        if (completionRateEl) {
-            completionRateEl.textContent = `${analytics.completion_rate.toFixed(1)}% completion rate this month`;
-        }
-        
-        if (statsContainer) {
-            statsContainer.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon">📝</div>
-                    <div class="stat-info">
-                        <div class="stat-number">${analytics.total_tasks}</div>
-                        <div class="stat-label">Total Tasks</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">✅</div>
-                    <div class="stat-info">
-                        <div class="stat-number">${analytics.completed_tasks}</div>
-                        <div class="stat-label">Completed</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-info">
-                        <div class="stat-number">${analytics.completion_rate.toFixed(1)}%</div>
-                        <div class="stat-label">Success Rate</div>
-                    </div>
-                </div>
-            `;
-        }
+    // OVERVIEW PAGE
+    async loadOverview() {
+        await this.loadOverviewStats();
+        await this.loadRecentTasks();
+        await this.loadRecentProjects();
     }
 
     async loadOverviewStats() {
         try {
             const response = await fetch('/api/analytics');
-            const analytics = await response.json();
+            const data = await response.json();
             
-            // Update overview stats
+            // Update stat cards
             const activeTasksEl = document.getElementById('active-tasks-count');
             const completionRateEl = document.getElementById('completion-rate');
+            const totalProjectsEl = document.getElementById('total-projects-count');
             const completedCountEl = document.getElementById('completed-count');
             const progressCountEl = document.getElementById('progress-count');
+            const highPriorityEl = document.getElementById('high-priority-count');
             
-            if (activeTasksEl) activeTasksEl.textContent = analytics.total_tasks - analytics.completed_tasks;
-            if (completionRateEl) completionRateEl.textContent = `${analytics.completion_rate.toFixed(0)}%`;
-            if (completedCountEl) completedCountEl.textContent = analytics.completed_tasks;
-            if (progressCountEl) progressCountEl.textContent = analytics.total_tasks - analytics.completed_tasks;
+            if (activeTasksEl) activeTasksEl.textContent = data.pending_tasks || 0;
+            if (completionRateEl) completionRateEl.textContent = Math.round(data.completion_rate || 0) + '%';
+            if (totalProjectsEl) totalProjectsEl.textContent = data.total_projects || 0;
+            if (completedCountEl) completedCountEl.textContent = data.completed_tasks || 0;
+            if (progressCountEl) progressCountEl.textContent = data.pending_tasks || 0;
+            if (highPriorityEl) highPriorityEl.textContent = data.high_priority_tasks || 0;
+            
+            // Update change indicators
+            const activeChangeEl = document.getElementById('active-tasks-change');
+            const completionChangeEl = document.getElementById('completion-change');
+            const projectsChangeEl = document.getElementById('projects-change');
+            
+            if (activeChangeEl) activeChangeEl.textContent = 'Track your progress';
+            if (completionChangeEl) completionChangeEl.textContent = 'Keep it up!';
+            if (projectsChangeEl) projectsChangeEl.textContent = 'Stay organized';
+            
         } catch (error) {
             console.error('Error loading overview stats:', error);
         }
     }
-}
 
-// Task management functions
-async function toggleTask(taskId, isCompleted) {
-    try {
-        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-        const titleElement = taskElement?.querySelector('.task-title');
-        const description = titleElement ? titleElement.textContent : '';
-        
-        const response = await fetch('/tasksupdate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${taskId}&done=${isCompleted ? 'on' : ''}&description=${encodeURIComponent(description)}`
-        });
-        
-        if (response.ok) {
-            // Update UI
-            if (taskElement) {
-                if (isCompleted) {
-                    taskElement.classList.add('completed');
-                } else {
-                    taskElement.classList.remove('completed');
-                }
+    async loadRecentTasks() {
+        try {
+            const response = await fetch('/api/tasks');
+            const tasks = await response.json();
+            
+            const container = document.getElementById('recent-tasks-list');
+            if (!container) return;
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="no-tasks"><p>No tasks yet</p></div>';
+                return;
             }
             
-            // Refresh stats
-            router.loadOverviewStats();
+            // Show up to 5 most recent tasks
+            const recentTasks = tasks.slice(0, 5);
+            container.innerHTML = '';
+            
+            recentTasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'priority-item';
+                
+                const priorityClass = task.priority || 'medium';
+                const statusText = task.done ? 'Completed' : 'Pending';
+                
+                div.innerHTML = `
+                    <div class="priority-indicator ${priorityClass}"></div>
+                    <div class="priority-info">
+                        <span class="priority-label">${this.escapeHtml(task.description.substring(0, 30))}${task.description.length > 30 ? '...' : ''}</span>
+                        <span class="priority-count">${statusText}</span>
+                    </div>
+                    <span class="priority-date">${task.due_date ? this.formatDate(task.due_date) : 'No date'}</span>
+                `;
+                
+                container.appendChild(div);
+            });
+        } catch (error) {
+            console.error('Error loading recent tasks:', error);
         }
-    } catch (error) {
-        console.error('Error updating task:', error);
     }
-}
 
-async function deleteTask(taskId) {
-    if (!confirm('Are you sure you want to delete this task?')) return;
-    
-    try {
-        const response = await fetch('/tasksdelete', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${taskId}`
-        });
-        
-        if (response.ok) {
-            // Remove from UI
-            const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-            if (taskElement) {
-                taskElement.remove();
+    async loadRecentProjects() {
+        try {
+            const response = await fetch('/api/projects');
+            const projects = await response.json();
+            
+            const container = document.getElementById('recent-projects-list');
+            if (!container) return;
+            
+            if (projects.length === 0) {
+                container.innerHTML = '<div class="no-tasks"><p>No projects yet</p></div>';
+                return;
             }
-            // Refresh task list
-            router.loadTasks();
+            
+            // Show up to 3 most recent projects
+            const recentProjects = projects.slice(0, 3);
+            container.innerHTML = '';
+            
+            recentProjects.forEach(project => {
+                const div = document.createElement('div');
+                div.className = 'project-item';
+                div.style.cursor = 'pointer';
+                div.onclick = () => this.navigateTo('projects');
+                
+                const initial = project.name.charAt(0).toUpperCase();
+                
+                div.innerHTML = `
+                    <div class="project-avatar">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                            ${initial}
+                        </div>
+                    </div>
+                    <div class="project-info">
+                        <span class="project-name">${this.escapeHtml(project.name)}</span>
+                        <span class="project-desc">${project.progress}% Complete</span>
+                    </div>
+                    <div class="project-status">
+                        <span class="status-indicator ${project.status}"></span>
+                        <span class="status-text">${project.status}</span>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        } catch (error) {
+            console.error('Error loading recent projects:', error);
         }
-    } catch (error) {
-        console.error('Error deleting task:', error);
     }
-}
 
-function editTask(taskId) {
-    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-    const titleElement = taskElement?.querySelector('.task-title');
-    const currentTitle = titleElement ? titleElement.textContent : '';
-    
-    const newTitle = prompt('Edit task:', currentTitle);
-    if (newTitle && newTitle !== currentTitle) {
-        updateTaskDescription(taskId, newTitle);
-    }
-}
-
-async function updateTaskDescription(taskId, newDescription) {
-    try {
-        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-        const checkbox = taskElement?.querySelector('.task-checkbox');
-        const isCompleted = checkbox ? checkbox.checked : false;
+    // TASKS PAGE
+    async loadTasks() {
+        const container = document.getElementById('tasks-container');
+        if (!container) return;
         
-        const response = await fetch('/tasksupdate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${taskId}&description=${encodeURIComponent(newDescription)}&done=${isCompleted ? 'on' : ''}`
-        });
-        
-        if (response.ok) {
-            const titleElement = taskElement?.querySelector('.task-title');
-            if (titleElement) {
-                titleElement.textContent = newDescription;
+        try {
+            container.innerHTML = '<div class="loading-tasks">Loading tasks...</div>';
+            
+            const response = await fetch('/api/tasks');
+            this.allTasks = await response.json();
+            
+            if (this.allTasks.length === 0) {
+                container.innerHTML = '<div class="no-tasks"><p>Create your first task to get started!</p></div>';
+                const taskCount = document.getElementById('task-count');
+                if (taskCount) taskCount.textContent = '0 tasks';
+                return;
             }
+            
+            this.displayTasks(this.allTasks);
+            
+            const taskCount = document.getElementById('task-count');
+            if (taskCount) taskCount.textContent = `${this.allTasks.length} task${this.allTasks.length !== 1 ? 's' : ''}`;
+            
+        } catch (error) {
+            console.error('Failed to load tasks:', error);
+            container.innerHTML = '<div class="error">Failed to load tasks. Please refresh the page.</div>';
         }
-    } catch (error) {
-        console.error('Error updating task description:', error);
     }
-}
 
-function showCreateTaskModal() {
-    const description = prompt('Enter task description:');
-    if (description) {
-        createTask(description);
-    }
-}
-
-async function createTask(description) {
-    try {
-        const response = await fetch('/createtasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `user_id=1&description=${encodeURIComponent(description)}`
-        });
+    displayTasks(tasks) {
+        const container = document.getElementById('tasks-container');
+        if (!container) return;
         
-        if (response.ok) {
-            // Refresh task list
-            router.loadTasks();
-            router.loadOverviewStats();
-        }
-    } catch (error) {
-        console.error('Error creating task:', error);
-    }
-}
-
-// Project Management Functions
-async function createProject() {
-    const name = prompt('Project name:');
-    if (!name) return;
-    
-    const description = prompt('Project description:');
-    const status = prompt('Status (active/completed/paused/cancelled):') || 'active';
-    const dueDate = prompt('Due date (YYYY-MM-DD):');
-    const team_members = prompt('Number of team members:', '0');
-    
-    try {
-        const response = await fetch('/api/projects/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&due_date=${dueDate || ''}&team_members=${team_members || '0'}`
-        });
+        let filteredTasks = tasks;
         
-        if (response.ok) {
-            alert('Project created successfully!');
-            if (router.currentRoute === 'projects') {
-                router.loadProjects();
-            }
-        } else {
-            alert('Failed to create project');
+        if (this.currentFilter === 'completed') {
+            filteredTasks = tasks.filter(t => t.done);
+        } else if (this.currentFilter === 'pending') {
+            filteredTasks = tasks.filter(t => !t.done);
+        } else if (this.currentFilter === 'high') {
+            filteredTasks = tasks.filter(t => t.priority === 'high');
         }
-    } catch (error) {
-        console.error('Error creating project:', error);
-        alert('Error creating project');
-    }
-}
-async function submitProjectEdit(projectId) {
-    // Get values from form inputs
-    const name = document.getElementById('edit-name').value;
-    const description = document.getElementById('edit-description').value;
-    const status = document.getElementById('edit-status').value;
-    const dueDate = document.getElementById('edit-due-date').value;
-    const teamMembers = document.getElementById('edit-team-members').value || 0;
-
-    try {
-        const response = await fetch('/api/projects/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${projectId}` +
-                  `&name=${encodeURIComponent(name)}` +
-                  `&description=${encodeURIComponent(description)}` +
-                  `&status=${encodeURIComponent(status)}` +
-                  `&due_date=${encodeURIComponent(dueDate)}` +
-                  `&team_members=${encodeURIComponent(teamMembers)}`
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            console.error("Failed to update project:", result);
-            alert(result.error || "Failed to update project");
+        
+        if (filteredTasks.length === 0) {
+            container.innerHTML = '<div class="no-tasks"><p>No tasks match this filter.</p></div>';
             return;
         }
-
-        // Optionally, refresh project list or close modal
-        loadProjects();
-        closeEditModal();
-    } catch (err) {
-        console.error("Error updating project:", err);
-        alert("An error occurred while updating the project");
+        
+        container.innerHTML = '';
+        filteredTasks.forEach(task => {
+            const taskEl = this.createTaskElement(task);
+            container.appendChild(taskEl);
+        });
     }
-}
 
-async function loadProjects() {
-    try {
-        const response = await fetch('/api/projects');
-        const projects = await response.json();
-        renderProjects(projects);
-    } catch (error) {
-        console.error('Error loading projects:', error);
+    createTaskElement(task) {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.setAttribute('data-task-id', task.id);
+        
+        div.innerHTML = `
+            <div class="task-checkbox">
+                <input type="checkbox" ${task.done ? 'checked' : ''} onchange="router.toggleTask(${task.id}, this.checked)">
+            </div>
+            <div class="task-content">
+                <div class="task-description ${task.done ? 'completed' : ''}">${this.escapeHtml(task.description)}</div>
+                <div class="task-meta">
+                    <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                    ${task.project_name ? `<span class="task-project"> ${this.escapeHtml(task.project_name)}</span>` : ''}
+                    ${task.due_date ? `<span class="task-due">${task.due_date}</span>` : ''}
+                </div>
+            </div>
+            <div class="task-actions">
+                <button onclick="router.editTask(${task.id})" class="btn-icon" title="Edit">Edit</button>
+                <button onclick="router.deleteTask(${task.id})" class="btn-icon" title="Delete">Delete</button>
+            </div>
+        `;
+        return div;
     }
-}
 
-function renderProjects(projects) {
-    const container = document.getElementById('projects-container');
-    if (!container) return;
-    
-    if (projects.length === 0) {
-        container.innerHTML = '<div class="no-projects">No projects found. Create your first project!</div>';
-        return;
+    async toggleTask(taskId, done) {
+        try {
+            const formData = new FormData();
+            formData.append('id', taskId);
+            formData.append('done', done ? 'on' : '');
+            
+            const response = await fetch('/updatetasks', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            
+            if (response.ok) {
+                await this.loadTasks();
+                await this.loadOverviewStats();
+            } else {
+                alert('Failed to update task');
+            }
+        } catch (error) {
+            console.error('Failed to toggle task:', error);
+            alert('Network error while updating task');
+        }
     }
-    
-    const projectsHTML = projects.map(project => `
-        <div class="dashboard-card">
+
+    async deleteTask(taskId) {
+        if (!confirm('Are you sure you want to delete this task?')) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('id', taskId);
+            
+            const response = await fetch('/deletetasks', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            
+            if (response.ok) {
+                await this.loadTasks();
+                await this.loadOverviewStats();
+            } else {
+                alert('Failed to delete task');
+            }
+        } catch (error) {
+            console.error('Failed to delete task:', error);
+            alert('Network error while deleting task');
+        }
+    }
+
+    async editTask(taskId) {
+        try {
+            // Find the task in the current list
+            const task = this.allTasks.find(t => t.id === taskId);
+            if (!task) {
+                alert('Task not found');
+                return;
+            }
+            
+            // Show edit modal
+            showEditTaskModal(task);
+        } catch (error) {
+            console.error('Failed to load task for editing:', error);
+            alert('Failed to load task details');
+        }
+    }
+
+    filterTasks(filter) {
+        this.currentFilter = filter;
+        
+        // Update active filter button
+        document.querySelectorAll('.task-filters .filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-filter') === filter) {
+                btn.classList.add('active');
+            }
+        });
+        
+        this.displayTasks(this.allTasks);
+    }
+
+    // PROJECTS PAGE
+    async loadProjects() {
+        const container = document.getElementById('projects-container');
+        if (!container) return;
+        
+        try {
+            container.innerHTML = '<div class="loading-tasks">Loading projects...</div>';
+            
+            const response = await fetch('/api/projects');
+            const projects = await response.json();
+            
+            container.innerHTML = '';
+            
+            if (projects.length === 0) {
+                container.innerHTML = '<div class="dashboard-card"><p>Create your first project!</p></div>';
+                return;
+            }
+            
+            projects.forEach(project => {
+                const projectEl = this.createProjectElement(project);
+                container.appendChild(projectEl);
+            });
+            
+        } catch (error) {
+            console.error('Failed to load projects:', error);
+            container.innerHTML = '<div class="error">Failed to load projects</div>';
+        }
+    }
+
+    createProjectElement(project) {
+        const div = document.createElement('div');
+        div.className = 'dashboard-card';
+        
+        const statusClass = project.status.toLowerCase();
+        
+        div.innerHTML = `
             <div class="card-header">
-                <h3>${project.name}</h3>
-                <span class="project-status-badge ${project.status}">${project.status.charAt(0).toUpperCase() + project.status.slice(1)}</span>
+                <h3>${this.escapeHtml(project.name)}</h3>
+                <span class="project-status-badge ${statusClass}">${project.status}</span>
             </div>
             <div class="project-details">
-                <p>${project.description || 'No description'}</p>
+                <p>${this.escapeHtml(project.description || 'No description')}</p>
                 <div class="project-progress">
                     <div class="progress-bar">
                         <div class="progress" style="width: ${project.progress}%"></div>
@@ -512,240 +456,752 @@ function renderProjects(projects) {
                     <span class="progress-text">${project.progress}% Complete</span>
                 </div>
                 <div class="project-meta">
-                    <span class="project-due">Due: ${project.due_date || 'No due date'}</span>
-                    <span class="project-tasks">${project.task_count} tasks (${project.completed_tasks} completed)</span>
-                    <span class="project-team">Team Members: ${project.team_members}</span>
-
+                    ${project.due_date ? `<span class="project-due">Due: ${project.due_date} |</span>` : ''}
+                    <span class="project-team">Team: ${project.team_members} member${project.team_members !== 1 ? 's' : ''} |</span>
+                    <span class="project-tasks">Tasks: ${project.completed_tasks}/${project.task_count}</span>
                 </div>
-                <div class="project-actions">
-                    <button class="task-action edit" onclick="editProject(${project.id})">Edit</button>
-                    <button class="task-action delete" onclick="deleteProject(${project.id})">Delete</button>
+                <div class="project-actions" style="margin-top: 10px; display: flex; gap: 8px;">
+                    <button onclick="router.editProject(${project.id})" class="btn-secondary">Edit</button>
+                    <button onclick="router.deleteProject(${project.id})" class="btn-danger">Delete</button>
                 </div>
-                
             </div>
-        </div>
-    `).join('');
-    
-    container.innerHTML = projectsHTML;
+        `;
+        return div;
+    }
+
+    async editProject(projectId) {
+        try {
+            const response = await fetch('/api/projects');
+            const projects = await response.json();
+            const project = projects.find(p => p.id === projectId);
+            
+            if (!project) {
+                alert('Project not found');
+                return;
+            }
+            
+            showEditProjectModal(project);
+        } catch (error) {
+            console.error('Failed to load project for editing:', error);
+            alert('Failed to load project details');
+        }
+    }
+
+    async deleteProject(projectId) {
+        if (!confirm('Are you sure you want to delete this project? Tasks will be unlinked.')) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('id', projectId);
+            
+            const response = await fetch('/api/projects/delete', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                await this.loadProjects();
+                await this.loadOverviewStats();
+            } else {
+                alert('Failed to delete project');
+            }
+        } catch (error) {
+            console.error('Failed to delete project:', error);
+            alert('Network error while deleting project');
+        }
+    }
+
+    // ANALYTICS PAGE
+    async loadAnalytics() {
+        try {
+            const response = await fetch('/api/analytics');
+            const data = await response.json();
+            
+            // Update analytics stats grid
+            const statsContainer = document.getElementById('analytics-stats');
+            if (statsContainer) {
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${data.total_tasks || 0}</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${data.completed_tasks || 0}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${data.pending_tasks || 0}</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${data.high_priority_tasks || 0}</div>
+                            <div class="stat-label">High Priority</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${Math.round(data.completion_rate || 0)}%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📁</div>
+                        <div class="stat-info">
+                            <div class="stat-number">${data.total_projects || 0}</div>
+                            <div class="stat-label">Total Projects</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update completion rate text
+            const completionRateEl = document.getElementById('analytics-completion-rate');
+            if (completionRateEl) {
+                completionRateEl.textContent = `You complete ${Math.round(data.completion_rate || 0)}% of your tasks`;
+            }
+            
+            const totalTasksEl = document.getElementById('analytics-total-tasks');
+            if (totalTasksEl) {
+                totalTasksEl.textContent = `You have ${data.total_tasks || 0} total tasks`;
+            }
+            
+            // Load task statistics
+            const statsContainerDetail = document.getElementById('task-statistics');
+            if (statsContainerDetail) {
+                statsContainerDetail.innerHTML = `
+                    <div class="insight-item">
+                        <div class="insight-icon">📊</div>
+                        <div class="insight-text">
+                            <h4>Task Distribution</h4>
+                            <p>Completed: ${data.completed_tasks || 0} | Pending: ${data.pending_tasks || 0}</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">🎯</div>
+                        <div class="insight-text">
+                            <h4>Priority Breakdown</h4>
+                            <p>High Priority: ${data.high_priority_tasks || 0} tasks need attention</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+        } catch (error) {
+            console.error('Failed to load analytics:', error);
+        }
+    }
+
+    // NOTES PAGE
+    async loadNotes() {
+        const container = document.getElementById('notes-container');
+        if (!container) return;
+        
+        try {
+            container.innerHTML = '<div class="loading-tasks">Loading notes...</div>';
+            
+            const response = await fetch('/api/notes');
+            const notes = await response.json();
+            
+            container.innerHTML = '';
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="dashboard-card"><p>Create your first note!</p></div>';
+                return;
+            }
+            
+            notes.forEach(note => {
+                const noteEl = this.createNoteElement(note);
+                container.appendChild(noteEl);
+            });
+        } catch (error) {
+            console.error('Failed to load notes:', error);
+            container.innerHTML = '<div class="error">Failed to load notes</div>';
+        }
+    }
+
+    createNoteElement(note) {
+        const div = document.createElement('div');
+        div.className = 'dashboard-card note-card';
+        div.innerHTML = `
+            <div class="note-header">
+                <h4>${this.escapeHtml(note.title)}</h4>
+                <small>Updated ${this.formatDate(note.updated_at)}</small>
+            </div>
+            <div class="note-content">
+                <p>${this.escapeHtml(note.content.substring(0, 150))}${note.content.length > 150 ? '...' : ''}</p>
+            </div>
+            <div class="note-actions">
+                <button onclick="router.editNote(${note.id})" class="note-action">Edit</button>
+                <button onclick="router.deleteNote(${note.id})" class="note-action">Delete</button>
+            </div>
+        `;
+        return div;
+    }
+
+    async editNote(noteId) {
+        try {
+            const response = await fetch('/api/notes');
+            const notes = await response.json();
+            const note = notes.find(n => n.id === noteId);
+            
+            if (!note) {
+                alert('Note not found');
+                return;
+            }
+            
+            showEditNoteModal(note);
+        } catch (error) {
+            console.error('Failed to load note for editing:', error);
+            alert('Failed to load note details');
+        }
+    }
+
+    async deleteNote(noteId) {
+        if (!confirm('Are you sure you want to delete this note?')) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('id', noteId);
+            
+            const response = await fetch('/api/notes/delete', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                await this.loadNotes();
+            } else {
+                alert('Failed to delete note');
+            }
+        } catch (error) {
+            console.error('Failed to delete note:', error);
+            alert('Network error while deleting note');
+        }
+    }
+
+    // DOCUMENTS PAGE
+    async loadDocuments() {
+        const container = document.getElementById('documents-container');
+        if (!container) return;
+        
+        container.innerHTML = '<div class="dashboard-card"><p>Document management coming soon!</p></div>';
+    }
+
+    // UTILITY FUNCTIONS
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+        
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + ' days ago';
+        
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
 }
 
-async function editProject(projectId) {
-    const name = prompt('Project name:');
-    if (!name) return;
+// ============================================================================
+// MODAL FUNCTIONS
+// ============================================================================
+
+function showCreateTaskModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Task</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <form onsubmit="createTask(event)" class="task-form">
+                <div class="form-group">
+                    <label>Description *</label>
+                    <input type="text" name="description" required class="form-input" placeholder="What needs to be done?">
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select name="priority" class="form-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Project (optional)</label>
+                    <select name="project_id" class="form-input" id="task-project-select">
+                        <option value="">No Project</option>
+                    </select>
+                </div>
+                <input type="hidden" name="done" value="">
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadProjectsForSelect();
+}
+
+async function loadProjectsForSelect() {
+    try {
+        const response = await fetch('/api/projects');
+        const projects = await response.json();
+        
+        const select = document.getElementById('task-project-select');
+        if (select && projects.length > 0) {
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load projects:', error);
+    }
+}
+
+async function createTask(event) {
+    event.preventDefault();
     
-    const description = prompt('Project description:');
-    const status = prompt('Status (active/completed/paused/cancelled):') || 'active';
-    const dueDate = prompt('Due date (YYYY-MM-DD):');
-    const team_members = prompt('Number of team members:', '0');
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Clean up empty project_id
+    if (!formData.get('project_id')) {
+        formData.delete('project_id');
+    }
+    
+    try {
+        const response = await fetch('/createtasks', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            form.closest('.modal').remove();
+            await router.loadTasks();
+            await router.loadOverviewStats();
+        } else {
+            const contentType = response.headers.get('content-type');
+            let errorMessage = 'Failed to create task';
+            
+            if (contentType && contentType.includes('application/json')) {
+                const errorJson = await response.json();
+                errorMessage = errorJson.error || errorJson.message || errorMessage;
+            }
+            
+            console.error('Server error:', errorMessage);
+            alert(errorMessage);
+        }
+    } catch (error) {
+        console.error('Failed to create task:', error);
+        alert('Network error: ' + error.message);
+    }
+}
+
+function showEditTaskModal(task) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Task</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <form onsubmit="updateTask(event, ${task.id})" class="task-form">
+                <div class="form-group">
+                    <label>Description *</label>
+                    <input type="text" name="description" required class="form-input" placeholder="What needs to be done?" value="${router.escapeHtml(task.description)}">
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select name="priority" class="form-input">
+                        <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+                        <option value="medium" ${task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                        <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-input" value="${task.due_date || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Project (optional)</label>
+                    <select name="project_id" class="form-input" id="edit-task-project-select">
+                        <option value="">No Project</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" name="done" ${task.done ? 'checked' : ''}>
+                        Mark as completed
+                    </label>
+                </div>
+                <input type="hidden" name="id" value="${task.id}">
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Task</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    loadProjectsForEditSelect(task.project_id);
+}
+
+async function loadProjectsForEditSelect(currentProjectId) {
+    try {
+        const response = await fetch('/api/projects');
+        const projects = await response.json();
+        
+        const select = document.getElementById('edit-task-project-select');
+        if (select && projects.length > 0) {
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                if (project.id === currentProjectId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load projects:', error);
+    }
+}
+
+async function updateTask(event, taskId) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Set done value properly
+    if (form.querySelector('input[name="done"]').checked) {
+        formData.set('done', 'on');
+    } else {
+        formData.set('done', '');
+    }
+    
+    // Clean up empty project_id
+    if (!formData.get('project_id')) {
+        formData.delete('project_id');
+    }
+    
+    try {
+        const response = await fetch('/updatetasks', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            form.closest('.modal').remove();
+            await router.loadTasks();
+            await router.loadOverviewStats();
+        } else {
+            const contentType = response.headers.get('content-type');
+            let errorMessage = 'Failed to update task';
+            
+            if (contentType && contentType.includes('application/json')) {
+                const errorJson = await response.json();
+                errorMessage = errorJson.error || errorJson.message || errorMessage;
+            }
+            
+            console.error('Server error:', errorMessage);
+            alert(errorMessage);
+        }
+    } catch (error) {
+        console.error('Failed to update task:', error);
+        alert('Network error: ' + error.message);
+    }
+}
+
+function createProject() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Project</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <form onsubmit="submitProject(event)" class="task-form">
+                <div class="form-group">
+                    <label>Project Name *</label>
+                    <input type="text" name="name" required class="form-input" placeholder="Enter project name">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="Project description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-input">
+                        <option value="active">Active</option>
+                        <option value="planning">Planning</option>
+                        <option value="completed">Completed</option>
+                        <option value="paused">Paused</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Team Members</label>
+                    <input type="number" name="team_members" min="0" value="1" class="form-input">
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Project</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function submitProject(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('/api/projects/create', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            form.closest('.modal').remove();
+            await router.loadProjects();
+            await router.loadOverviewStats();
+        } else {
+            alert('Failed to create project. Please try again.');
+        }
+    } catch (error) {
+        console.error('Failed to create project:', error);
+        alert('Failed to create project. Please try again.');
+    }
+}
+
+function showEditProjectModal(project) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Project</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <form onsubmit="updateProject(event, ${project.id})" class="task-form">
+                <div class="form-group">
+                    <label>Project Name *</label>
+                    <input type="text" name="name" required class="form-input" placeholder="Enter project name" value="${router.escapeHtml(project.name)}">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="Project description...">${router.escapeHtml(project.description || '')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-input">
+                        <option value="active" ${project.status === 'active' ? 'selected' : ''}>Active</option>
+                        <option value="planning" ${project.status === 'planning' ? 'selected' : ''}>Planning</option>
+                        <option value="completed" ${project.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        <option value="paused" ${project.status === 'paused' ? 'selected' : ''}>Paused</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" class="form-input" value="${project.due_date || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Team Members</label>
+                    <input type="number" name="team_members" min="0" value="${project.team_members || 1}" class="form-input">
+                </div>
+                <input type="hidden" name="id" value="${project.id}">
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Project</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function updateProject(event, projectId) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
     
     try {
         const response = await fetch('/api/projects/update', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${projectId}&name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&status=${status}&due_date=${dueDate || ''}&team_members=${team_members || '0'}`
+            body: formData
         });
         
         if (response.ok) {
-            alert('Project updated successfully!');
-            router.loadProjects();
+            form.closest('.modal').remove();
+            await router.loadProjects();
+            await router.loadOverviewStats();
+        } else {
+            alert('Failed to update project. Please try again.');
         }
     } catch (error) {
-        console.error('Error updating project:', error);
+        console.error('Failed to update project:', error);
+        alert('Failed to update project. Please try again.');
     }
 }
 
-async function deleteProject(projectId) {
-    if (!confirm('Are you sure you want to delete this project? Tasks will be unlinked but not deleted.')) return;
-    
-    try {
-        const response = await fetch('/api/projects/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${projectId}`
-        });
-        
-        if (response.ok) {
-            alert('Project deleted successfully!');
-            router.loadProjects();
-        }
-    } catch (error) {
-        console.error('Error deleting project:', error);
-    }
+function createNote() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Note</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <form onsubmit="submitNote(event)" class="task-form">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" required class="form-input" placeholder="Note title">
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" class="form-input" rows="6" placeholder="Write your note here..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Note</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
-// Note Management Functions
-async function createNote() {
-    const title = prompt('Note title:');
-    if (!title) return;
+async function submitNote(event) {
+    event.preventDefault();
     
-    const content = prompt('Note content:');
+    const form = event.target;
+    const formData = new FormData(form);
     
     try {
         const response = await fetch('/api/notes/create', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `title=${encodeURIComponent(title)}&content=${encodeURIComponent(content || '')}`
+            body: formData
         });
         
         if (response.ok) {
-            alert('Note created successfully!');
-            if (router.currentRoute === 'notes') {
-                router.loadNotes();
-            }
+            form.closest('.modal').remove();
+            await router.loadNotes();
+        } else {
+            alert('Failed to create note. Please try again.');
         }
     } catch (error) {
-        console.error('Error creating note:', error);
+        console.error('Failed to create note:', error);
+        alert('Failed to create note. Please try again.');
     }
 }
 
-async function loadNotes() {
-    try {
-        const response = await fetch('/api/notes');
-        const notes = await response.json();
-        renderNotes(notes);
-    } catch (error) {
-        console.error('Error loading notes:', error);
-    }
-}
-
-function renderNotes(notes) {
-    const container = document.getElementById('notes-container');
-    if (!container) return;
-    
-    if (notes.length === 0) {
-        container.innerHTML = '<div class="no-notes">No notes found. Create your first note!</div>';
-        return;
-    }
-    
-    const notesHTML = notes.map(note => `
-        <div class="dashboard-card note-card">
-            <div class="note-header">
-                <h4>${note.title}</h4>
-                <small>Updated: ${new Date(note.updated_at).toLocaleDateString()}</small>
+function showEditNoteModal(note) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Note</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
             </div>
-            <div class="note-content">
-                <p>${note.content.substring(0, 150)}${note.content.length > 150 ? '...' : ''}</p>
-            </div>
-            <div class="note-actions">
-                <button class="note-action" onclick="editNote(${note.id})">Edit</button>
-                <button class="note-action" onclick="deleteNote(${note.id})">Delete</button>
-                <button class="note-action" onclick="viewNote(${note.id})">View Full</button>
-            </div>
+            <form onsubmit="updateNote(event, ${note.id})" class="task-form">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" required class="form-input" placeholder="Note title" value="${router.escapeHtml(note.title)}">
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" class="form-input" rows="6" placeholder="Write your note here...">${router.escapeHtml(note.content || '')}</textarea>
+                </div>
+                <input type="hidden" name="id" value="${note.id}">
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Note</button>
+                </div>
+            </form>
         </div>
-    `).join('');
-    
-    container.innerHTML = notesHTML;
+    `;
+    document.body.appendChild(modal);
 }
 
-async function editNote(noteId) {
-    // First get the current note
-    try {
-        const response = await fetch('/api/notes');
-        const notes = await response.json();
-        const note = notes.find(n => n.id === noteId);
-        
-        if (!note) return;
-        
-        const title = prompt('Note title:', note.title);
-        if (!title) return;
-        
-        const content = prompt('Note content:', note.content);
-        
-        const updateResponse = await fetch('/api/notes/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${noteId}&title=${encodeURIComponent(title)}&content=${encodeURIComponent(content || '')}`
-        });
-        
-        if (updateResponse.ok) {
-            alert('Note updated successfully!');
-            router.loadNotes();
-        }
-    } catch (error) {
-        console.error('Error editing note:', error);
-    }
-}
-
-async function deleteNote(noteId) {
-    if (!confirm('Are you sure you want to delete this note?')) return;
+async function updateNote(event, noteId) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
     
     try {
-        const response = await fetch('/api/notes/delete', {
+        const response = await fetch('/api/notes/update', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${noteId}`
+            body: formData
         });
         
         if (response.ok) {
-            alert('Note deleted successfully!');
-            router.loadNotes();
+            form.closest('.modal').remove();
+            await router.loadNotes();
+        } else {
+            alert('Failed to update note. Please try again.');
         }
     } catch (error) {
-        console.error('Error deleting note:', error);
-    }
-}
-
-function viewNote(noteId) {
-    // Simple implementation - you could enhance this with a modal
-    fetch('/api/notes')
-        .then(response => response.json())
-        .then(notes => {
-            const note = notes.find(n => n.id === noteId);
-            if (note) {
-                alert(`${note.title}\n\n${note.content}`);
-            }
-        });
-}
-
-// Enhanced task creation with project assignment
-async function showCreateTaskModal() {
-    const description = prompt('Enter task description:');
-    if (!description) return;
-    
-    const priority = prompt('Priority (high/medium/low):', 'medium');
-    const dueDate = prompt('Due date (YYYY-MM-DD):');
-    
-    // Get projects for assignment
-    try {
-        const projectsResponse = await fetch('/api/projects');
-        const projects = await projectsResponse.json();
-        
-        let projectId = null;
-        if (projects.length > 0) {
-            const projectOptions = projects.map(p => `${p.id}: ${p.name}`).join('\n');
-            const selectedProject = prompt(`Assign to project (enter project ID or leave blank):\n\n${projectOptions}`);
-            if (selectedProject) {
-                projectId = parseInt(selectedProject);
-            }
-        }
-        
-        createTaskWithDetails(description, priority, dueDate, projectId);
-    } catch (error) {
-        console.error('Error loading projects:', error);
-        createTaskWithDetails(description, priority, dueDate, null);
-    }
-}
-
-async function createTaskWithDetails(description, priority, dueDate, projectId) {
-    try {
-        const response = await fetch('/createtasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `user_id=1&description=${encodeURIComponent(description)}&priority=${priority || 'medium'}&due_date=${dueDate || ''}&project_id=${projectId || ''}`
-        });
-        
-        if (response.ok) {
-            alert('Task created successfully!');
-            router.loadTasks();
-            router.loadOverviewStats();
-        }
-    } catch (error) {
-        console.error('Error creating task:', error);
+        console.error('Failed to update note:', error);
+        alert('Failed to update note. Please try again.');
     }
 }
 
 function exportReport() {
-    // Generate a simple text report
     fetch('/api/analytics')
         .then(response => response.json())
         .then(analytics => {
@@ -761,11 +1217,9 @@ TASK STATISTICS:
 
 PROJECT STATISTICS:
 - Total Projects: ${analytics.total_projects}
-- Active Projects: ${analytics.active_projects}
 
 This is a basic report. Enhanced reporting features coming soon!`;
 
-            // Create and download the report
             const blob = new Blob([report], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -783,10 +1237,14 @@ This is a basic report. Enhanced reporting features coming soon!`;
 }
 
 function uploadDocument() {
-    alert('Document upload feature will be implemented in the next phase!\n\nPlanned features:\n- File upload with drag & drop\n- Document preview\n- Version control\n- Sharing capabilities');
+    alert('Document upload feature coming soon!');
 }
 
-// Global variables
+// ============================================================================
+// GLOBAL VARIABLES AND FUNCTIONS
+// ============================================================================
+
+// Global router instance
 let router;
 
 // Global navigation function
@@ -796,46 +1254,43 @@ function navigateTo(route) {
     }
 }
 
-// Filter and search functions
-function filterTasks(filter) {
-    const taskItems = document.querySelectorAll('.task-item');
-    taskItems.forEach(item => {
-        const isCompleted = item.classList.contains('completed');
-        let show = true;
-        
-        switch(filter) {
-            case 'pending':
-                show = !isCompleted;
-                break;
-            case 'completed':
-                show = isCompleted;
-                break;
-            case 'all':
-            default:
-                show = true;
-                break;
-        }
-        
-        item.style.display = show ? 'flex' : 'none';
-    });
-}
-
-function searchTasks(query) {
-    const taskItems = document.querySelectorAll('.task-item');
-    const lowerQuery = query.toLowerCase();
-    
-    taskItems.forEach(item => {
-        const titleElement = item.querySelector('.task-title');
-        const title = titleElement ? titleElement.textContent.toLowerCase() : '';
-        const matches = title.includes(lowerQuery);
-        item.style.display = matches ? 'flex' : 'none';
-    });
-}
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize router
     router = new TaskLiftRouter();
+
+    // Mobile sidebar toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.querySelector('.sidebar');
+    
+    function toggleSidebar() {
+        if (sidebar && sidebarOverlay) {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+    }
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+    }
+    
+    // Close sidebar when clicking nav links on mobile
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        });
+    });
 
     // Toggle buttons in analytics card
     document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -845,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Filter buttons in projects card and tasks page
+    // Filter buttons setup
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const parent = this.closest('.project-filters, .task-filters');
@@ -856,7 +1311,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Handle task filtering
                 if (parent.classList.contains('task-filters')) {
                     const filter = this.getAttribute('data-filter');
-                    filterTasks(filter);
+                    if (router) {
+                        router.filterTasks(filter);
+                    }
                 }
             }
         });
@@ -865,12 +1322,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Search functionality
     const searchInput = document.querySelector('.search-input');
     if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                searchTasks(this.value);
-            }, 300);
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            // Simple search - filter visible tasks
+            const taskItems = document.querySelectorAll('.task-item');
+            taskItems.forEach(item => {
+                const description = item.querySelector('.task-description');
+                if (description) {
+                    const text = description.textContent.toLowerCase();
+                    item.style.display = text.includes(query) ? 'flex' : 'none';
+                }
+            });
         });
     }
 });
