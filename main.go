@@ -92,8 +92,16 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
+	// Serve landing page at root
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		http.ServeFile(w, r, "templates/homepage.html")
+	})
+
 	// Auth routes
-	mux.HandleFunc("/", handlers.Login)
 	mux.HandleFunc("/login", handlers.Login)
 	mux.HandleFunc("/register", handlers.Register)
 	mux.HandleFunc("/logout", handlers.Logout)

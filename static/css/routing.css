@@ -63,7 +63,7 @@
 }
 
 .create-btn {
-    background: linear-gradient(135deg, #2d1b69, #11001c);
+    background: #6c7d36;
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -74,7 +74,7 @@
 }
 
 .create-btn:hover {
-    background: linear-gradient(135deg, hsl(19, 81%, 50%), #212121);
+    background: #6c7d36;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(45, 27, 105, 0.3);
 }
@@ -107,7 +107,7 @@
 
 .task-item.completed .task-title {
     text-decoration:line-through;
-    color: #c14004;
+    color: #6c7d36;
 }
 
 .task-id {
@@ -245,7 +245,7 @@
 
 .task-project {
     font-size: 0.7rem;
-    color: #8b5cf6;
+    color: #6c7d36;
     font-weight: 500;
     margin-top: 0.25rem;
 }
@@ -263,7 +263,7 @@
 
 /* Enhanced analytics styles */
 .analytics-insight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #6c7d36;
     color: white;
     padding: 1.5rem;
     border-radius: 12px;
@@ -416,7 +416,7 @@
 }
 
 .doc-action:hover, .note-action:hover {
-    background: hsl(19, 81%, 50%);
+    background: #6c7d36;
     color: white;
 }
 
@@ -675,7 +675,7 @@
         height: 100vh !important;
         z-index: 1000 !important;
         transition: left 0.3s ease-in-out !important;
-        background: linear-gradient(135deg, #2d1b69, #11001c, #2d1b69) !important;
+        background: #06392f !important;
         box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2) !important;
         overflow-y: auto !important;
         color: white !important;
@@ -706,14 +706,14 @@
     
     /* Active nav item styling */
     body .dashboard .sidebar .nav-item.active .nav-link {
-        background: #2d1b69 !important;
-        color: #ef5f26 !important;
-        border-right: 3px solid #f2591d !important;
+        background: #06392f !important;
+        color: #6c7d36 !important;
+        border-right: 3px solid #6c7d36 !important;
     }
     
     /* Active nav item text color */
     body .dashboard .sidebar .nav-item.active .nav-link span {
-        color: #ef5f26 !important;
+        color: #6c7d36 !important;
     }
     
     /* Show logo text */
@@ -737,7 +737,7 @@
         top: 1rem !important;
         left: 1rem !important;
         z-index: 1001 !important;
-        background: linear-gradient(135deg, #2d1b69, #11001c) !important;
+        background: #06392f !important;
         color: white !important;
         border: none !important;
         padding: 0.75rem 1rem !important;

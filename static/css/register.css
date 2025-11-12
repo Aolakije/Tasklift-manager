@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 body {
-    background: linear-gradient(135deg, #2d1b69, #11001c, #2d1b69);
+    background: #06392f;
     font-family: Arial, sans-serif;
     min-height: auto;
 }
@@ -28,7 +28,7 @@ body {
 .logo-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #4c0ce2);
+    background: linear-gradient(135deg, #6c7d36);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -67,27 +67,32 @@ body {
     flex: 1;
     border-radius: 10px;
 }
+
 .form-support h1 {
     font-size: 4rem;
     color: white;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
 }
 .form-support p {
     font-size: 1.2rem;
-    margin-bottom: 3rem;
+    margin-bottom:10px;
 }
 .form-support button {
-    width: 70%;
+    width: 40%;
     padding: 10px;
-    background: linear-gradient(135deg, hsl(19, 81%, 50%) 0%, #c97a5a 100%);
+    background: #6c7d36;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     cursor: pointer;
     justify-content: center;
     margin: 0 auto;
     display: flex;
     font-size: 1rem;
+}
+.form-support button:hover {
+    background: #212121;
+    transition: 0.3s;
 }
 .form {
     flex: 1;
@@ -185,7 +190,7 @@ body {
 .button-submit {
     width: 70%;
     padding: 10px;
-    background: linear-gradient(135deg, hsl(19, 81%, 50%) 0%, #c97a5a 100%);
+    background: #6c7d36;
     color: white;
     border: none;
     border-radius: 5px;
@@ -259,39 +264,21 @@ margin-top: 5px;
 .btn:last-child {
     margin-right: 0;
 }
-.login-link {
-    text-align: center;
-    margin-top: 1rem;
-}
-.login-link p {
-    color: #e0e9e9;
-    text-align: center;
-    font-size: 1rem;
-    margin-top: 10px;
-}
-.login-link a {
-    color: rgb(219, 78, 219);
-    text-decoration: none;
-    margin-left: 5px;
-}
-.login-link a:hover {
-    text-decoration: underline;
-}
 .why-container {
     margin: 40px auto 20px;
     text-align: center;
 }
 .why-container h5 {
-    color: hsl(291, 83%, 49%);
+    color: #b8ee07;
     font-size: 0.7rem;
     margin-bottom: 10px;
     text-shadow: #ccc 0px 0px 10px;
 }
 .why-container h2 {
-    color: hsla(299, 91%, 41%, 0.917);
+    color: #b8ee07;
     text-align: center;
     font-size: 3rem;
-    margin-top: -2rem;
+    margin-top: 2rem;
 }
 .why-container p {
     color: hsl(0, 2%, 60%);
@@ -302,7 +289,7 @@ margin-top: 5px;
 .why-features {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid hsl(291, 83%, 49%);
+    border: 1px solid #b8ee07;
     background-color: rgba(255, 255, 255, 0.1);
     padding: 20px;
     margin: 20px 0;
@@ -327,6 +314,10 @@ margin-top: 5px;
     margin-top: 40px;
 }
 .footer a {
-    color: rgb(219, 78, 219);
+    color: #6c7d36;
     text-decoration: none;
+}
+.footer a:hover {
+    text-decoration: underline;
+    color: #b8ee07;
 }

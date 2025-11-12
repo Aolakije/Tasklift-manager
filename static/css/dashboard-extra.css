@@ -44,40 +44,40 @@
 }
 
 .modal-content {
-    border: 2px solid #2d1b69;
-    box-shadow: 0 20px 60px rgba(45, 27, 105, 0.3);
+    border: 1px solid #6c7d36;
+    box-shadow: 0 20px 60px #6c7d36;
 }
 
 /* Form inputs matching your theme */
 .form-input:focus {
-    border-color: #2d1b69;
-    box-shadow: 0 0 0 3px rgba(45, 27, 105, 0.1);
+    border-color: #6c7d36;
+    box-shadow: 0 0 0 3px #6c7d36;
 }
 
 /* Buttons matching your theme */
 .btn-primary {
-    background: linear-gradient(135deg, #2d1b69, #11001c);
+    background: #06392f;
     color: white;
 }
 
 .btn-primary:hover {
-    background: hsl(19, 81%, 50%);
+    background: #6c7d36;
     transform: translateY(-1px);
 }
 
 .create-btn {
-    background: linear-gradient(135deg, #2d1b69, #11001c);
+    background: #06392f;
 }
 
 .create-btn:hover {
-    background: hsl(19, 81%, 50%);
+    background: #6c7d36;
 }
 
 /* Task filter active state matching your theme */
 .task-filters .filter-btn.active {
-    background: hsl(19, 81%, 50%);
+    background: #06392f;
     color: white;
-    border-color: hsl(19, 81%, 50%);
+    border-color: #6c7d36;
 }
 
 /* Project status badges refined */
@@ -88,13 +88,13 @@
 
 /* Enhanced hover effects for task items */
 .task-item:hover {
-    background: linear-gradient(90deg, rgba(45, 27, 105, 0.02), transparent);
+    background: #6c7d36;
 }
 
 /* Task actions buttons with theme */
 .btn-icon:hover {
-    background: rgba(45, 27, 105, 0.1);
-    color: #2d1b69;
+    background: #06392f;
+    color: #6c7d36;
 }
 
 /* Analytics stats grid enhanced */
@@ -104,7 +104,7 @@
 }
 
 #analytics-stats .stat-card:hover {
-    border-color: #2d1b69;
+    border-color: #6c7d36;
     box-shadow: 0 4px 12px rgba(45, 27, 105, 0.15);
 }
 
@@ -125,7 +125,7 @@
 }
 
 .note-card:hover {
-    border-color: #2d1b69;
+    border-color: #6c7d36;
     box-shadow: 0 4px 12px rgba(45, 27, 105, 0.1);
 }
 
@@ -160,7 +160,7 @@
 .error {
     text-align: center;
     padding: 2rem 1rem;
-    color: #ef4444;
+    color: #6c7d36;
     font-size: 0.875rem;
     background: #fee2e2;
     border-radius: 8px;
@@ -200,7 +200,7 @@
 /* Modal close button enhanced */
 .close-btn:hover {
     background: rgba(45, 27, 105, 0.1);
-    color: #2d1b69;
+    color: #6c7d36;
 }
 
 /* Form groups spacing */
@@ -343,7 +343,7 @@ select.form-input {
 .btn-danger:focus-visible,
 .create-btn:focus-visible,
 .filter-btn:focus-visible {
-    outline: 2px solid #2d1b69;
+    outline: 2px solid #6c7d36;
     outline-offset: 2px;
 }
 
@@ -354,7 +354,7 @@ select.form-input {
 
 /* Better checkbox styling */
 .task-checkbox input[type="checkbox"] {
-    accent-color: #2d1b69;
+    accent-color: #6c7d36;
     cursor: pointer;
 }
 
@@ -371,7 +371,7 @@ select.form-input {
 
 /* Loading spinner matching theme */
 .spinner {
-    border-top-color: #2d1b69;
+    border-top-color: #6c7d36;
 }
 
 /* Status indicator animation */
@@ -387,7 +387,7 @@ select.form-input {
 /* Hover effect for cards */
 .dashboard-card:hover,
 .stat-card:hover {
-    border-color: rgba(45, 27, 105, 0.3);
+    border-color: #6c7d36;
 }
 
 /* Print-friendly overrides */
