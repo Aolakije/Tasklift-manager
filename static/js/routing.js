@@ -296,86 +296,115 @@ class TaskLiftRouter {
         });
     }
 
-    createTaskElement(task) {
-        const div = document.createElement('div');
-        div.className = 'task-item';
-        div.setAttribute('data-task-id', task.id);
-        
-        div.innerHTML = `
-            <div class="task-checkbox">
-                <input type="checkbox" ${task.done ? 'checked' : ''} onchange="router.toggleTask(${task.id}, this.checked)">
+   createTaskElement(task) {
+        console.log('Creating task element:', task); // ADD THIS LINE
+    const div = document.createElement('div');
+    div.className = 'task-item';
+    div.setAttribute('data-task-id', task.id);
+    
+    div.innerHTML = `
+        <div class="task-checkbox">
+            <input type="checkbox" ${task.done ? 'checked' : ''} onchange="router.toggleTask(${task.id}, this.checked)">
+        </div>
+        <div class="task-content">
+            <div class="task-description ${task.done ? 'completed' : ''}">${this.escapeHtml(task.description)}</div>
+            <div class="task-meta">
+                <span class="task-priority priority-${task.priority}">${task.priority}</span>
+                ${task.due_date ? `<span class="task-due">${task.due_date}</span>` : ''}
             </div>
-            <div class="task-content">
-                <div class="task-description ${task.done ? 'completed' : ''}">${this.escapeHtml(task.description)}</div>
-                <div class="task-meta">
-                    <span class="task-priority priority-${task.priority}">${task.priority}</span>
-                    ${task.project_name ? `<span class="task-project"> ${this.escapeHtml(task.project_name)}</span>` : ''}
-                    ${task.due_date ? `<span class="task-due">${task.due_date}</span>` : ''}
-                </div>
-            </div>
-            <div class="task-actions">
-                <button onclick="router.editTask(${task.id})" class="btn-icon" title="Edit">Edit</button>
-                <button onclick="router.deleteTask(${task.id})" class="btn-icon" title="Delete">Delete</button>
-            </div>
-        `;
-        return div;
-    }
-
-    async toggleTask(taskId, done) {
-        try {
-            const formData = new FormData();
-            formData.append('id', taskId);
-            formData.append('done', done ? 'on' : '');
-            
-            const response = await fetch('/updatetasks', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-            
-            if (response.ok) {
-                await this.loadTasks();
-                await this.loadOverviewStats();
-            } else {
-                alert('Failed to update task');
-            }
-        } catch (error) {
-            console.error('Failed to toggle task:', error);
-            alert('Network error while updating task');
+        </div>
+        <div class="task-actions">
+            <button onclick="router.editTask(${task.id})" class="btn-icon" title="Edit">Edit</button>
+            <button onclick="router.deleteTask(${task.id})" class="btn-icon" title="Delete">Delete</button>
+        </div>
+    `;
+    return div;
+}
+   async toggleTask(taskId, done) {
+    try {
+        // Find the task first to get all its data
+        const task = this.allTasks.find(t => t.id === taskId);
+        if (!task) {
+            alert('Task not found');
+            return;
         }
+        
+        const formData = new FormData();
+        formData.append('id', taskId);
+        formData.append('description', task.description); // IMPORTANT: Keep the description
+        formData.append('priority', task.priority); // IMPORTANT: Keep the priority
+        formData.append('done', done ? 'on' : '');
+        if (task.due_date) formData.append('due_date', task.due_date);
+        if (task.project_id) formData.append('project_id', task.project_id);
+        
+        const response = await fetch('/updatetasks', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            await this.loadTasks();
+            await this.loadOverviewStats();
+        } else {
+            alert('Failed to update task');
+        }
+    } catch (error) {
+        console.error('Failed to toggle task:', error);
+        alert('Network error while updating task');
     }
+}
 
     async deleteTask(taskId) {
-        if (!confirm('Are you sure you want to delete this task?')) return;
-        
-        try {
-            const formData = new FormData();
-            formData.append('id', taskId);
-            
-            const response = await fetch('/deletetasks', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-            
-            if (response.ok) {
-                await this.loadTasks();
-                await this.loadOverviewStats();
-            } else {
-                alert('Failed to delete task');
-            }
-        } catch (error) {
-            console.error('Failed to delete task:', error);
-            alert('Network error while deleting task');
-        }
-    }
+    // Create custom modal instead of confirm()
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Delete Task</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <p>Are you sure you want to delete this task? This action cannot be undone.</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                <button type="button" onclick="router.confirmDeleteTask(${taskId}); this.closest('.modal').remove();" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
 
+async confirmDeleteTask(taskId) {
+    try {
+        const formData = new FormData();
+        formData.append('id', taskId);
+        
+        const response = await fetch('/deletetasks', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            await this.loadTasks();
+            await this.loadOverviewStats();
+        } else {
+            alert('Failed to delete task');
+        }
+    } catch (error) {
+        console.error('Failed to delete task:', error);
+        alert('Network error while deleting task');
+    }
+}
     async editTask(taskId) {
         try {
             // Find the task in the current list
@@ -421,7 +450,7 @@ class TaskLiftRouter {
             container.innerHTML = '';
             
             if (projects.length === 0) {
-                container.innerHTML = '<div class="dashboard-card"><p>Create your first project!</p></div>';
+                container.innerHTML = '<div class="dashboard-card2"><p>Create your first project!</p></div>';
                 return;
             }
             
@@ -488,28 +517,47 @@ class TaskLiftRouter {
     }
 
     async deleteProject(projectId) {
-        if (!confirm('Are you sure you want to delete this project? Tasks will be unlinked.')) return;
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Delete Project</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <p>Are you sure you want to delete this project? All tasks will be unlinked from this project.</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                <button type="button" onclick="router.confirmDeleteProject(${projectId}); this.closest('.modal').remove();" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async confirmDeleteProject(projectId) {
+    try {
+        const formData = new FormData();
+        formData.append('id', projectId);
         
-        try {
-            const formData = new FormData();
-            formData.append('id', projectId);
-            
-            const response = await fetch('/api/projects/delete', {
-                method: 'POST',
-                body: formData
-            });
-            
-            if (response.ok) {
-                await this.loadProjects();
-                await this.loadOverviewStats();
-            } else {
-                alert('Failed to delete project');
-            }
-        } catch (error) {
-            console.error('Failed to delete project:', error);
-            alert('Network error while deleting project');
+        const response = await fetch('/api/projects/delete', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            await this.loadProjects();
+            await this.loadOverviewStats();
+        } else {
+            alert('Failed to delete project');
         }
+    } catch (error) {
+        console.error('Failed to delete project:', error);
+        alert('Network error while deleting project');
     }
+}
 
     // ANALYTICS PAGE
     async loadAnalytics() {
@@ -617,7 +665,7 @@ class TaskLiftRouter {
             container.innerHTML = '';
             
             if (notes.length === 0) {
-                container.innerHTML = '<div class="dashboard-card"><p>Create your first note!</p></div>';
+                container.innerHTML = '<div class="dashboard-card2"><p>Create your first note!</p></div>';
                 return;
             }
             
@@ -669,8 +717,26 @@ class TaskLiftRouter {
     }
 
     async deleteNote(noteId) {
-        if (!confirm('Are you sure you want to delete this note?')) return;
-        
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Delete Project</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <p>Are you sure you want to delete this note?</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" onclick="this.closest('.modal').remove()" class="btn-secondary">Cancel</button>
+                <button type="button" onclick="router.confirmDeleteProject(${noteId}); this.closest('.modal').remove();" class="btn-danger">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+    async confirmDeleteNote(noteId) {
         try {
             const formData = new FormData();
             formData.append('id', noteId);
@@ -696,7 +762,7 @@ class TaskLiftRouter {
         const container = document.getElementById('documents-container');
         if (!container) return;
         
-        container.innerHTML = '<div class="dashboard-card"><p>Document management coming soon!</p></div>';
+        container.innerHTML = '<div class="dashboard-card2"><p>Document management coming soon!</p></div>';
     }
 
     // UTILITY FUNCTIONS
