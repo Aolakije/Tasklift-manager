@@ -663,6 +663,7 @@
         color: #d1d5db;
     }
 }
+/* MOBILE SIDEBAR - Add this to routing.css */
 @media (max-width: 768px) {
     /* Sidebar positioning and behavior */
     body .dashboard .sidebar {
@@ -731,20 +732,24 @@
     
     /* Hamburger menu button */
     .mobile-menu-toggle {
+        display: block !important;
         position: fixed !important;
-        top: 1.3rem !important;
-        padding: 0.4rem !important;
-        left: 1rem !important;
+        top: 1.2rem !important;
+        left: 1.2rem !important;
         z-index: 1001 !important;
-        color: #06392f !important;
+        background: #06392f !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.5rem !important;
+        border-radius: 24px !important;
         cursor: pointer !important;
         font-size: 1.5rem !important;
         line-height: 1 !important;
-        border-radius: 24px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
     }
 
     .mobile-menu-toggle:hover {
-        background: #f3f4f6 !important;
+        background: #eff0ee !important;
         color: #06392f !important;
     }
     
