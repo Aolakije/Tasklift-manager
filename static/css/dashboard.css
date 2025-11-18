@@ -37,7 +37,8 @@ body {
 }
 
 .sidebar-header {
-    padding: 2rem 1.5rem;
+    margin-top: 2.5rem;
+    padding: 1rem 1rem;
     border-bottom: 2px solid rgb(255, 255, 255);
 }
 
@@ -194,17 +195,19 @@ body {
 }
 
 .logout-link {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
     text-decoration: none;
     border-radius: 6px;
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     transition: all 0.3s ease;
     border: 1px solid #06392f;
     background: #06392f;
     color: white;
+    margin-top: 9rem;
+    width: fit-content;
 }
 
 .logout-link:hover {
@@ -753,6 +756,11 @@ body {
     .main-content {
         margin-left: 0;
     }
+
+    .sidebar-header {
+        margin-top: 3.5rem;
+        padding: 1rem 1.5rem;
+    }
     
     .top-bar {
         padding: 1rem;
@@ -817,7 +825,11 @@ body {
     .logout-link span {
         display: none;
     }
-    
+    .logout-link {
+        padding: 0.5rem;
+        margin-top: 22rem;
+        display: inline-flex;
+        width: fit-content;
 }
 
 /* Extra small screens (up to 480px) */
@@ -1439,4 +1451,5 @@ textarea.form-input {
     .earnings-chart {
         background: #334155;
     }
+}
 }
