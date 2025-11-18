@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"task-manager/handlers"
 	"task-manager/middleware"
 
@@ -140,8 +141,13 @@ func main() {
 	mux.HandleFunc("/create-task", handlers.CreateTask)
 	mux.HandleFunc("/view-tasks", handlers.ListTasks)
 
-	log.Println("Starting TaskLift server on :5050")
-	log.Println("Dashboard available at: http://localhost:5050/dashboard")
+	// Get port from environment variable (required by Render)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5050" // fallback for local development
+	}
+
+	log.Printf("Starting TaskLift server on port %s\n", port)
 	log.Println("Features available:")
 	log.Println("  - Task Management (CRUD operations)")
 	log.Println("  - Project Management (CRUD operations)")
@@ -149,7 +155,7 @@ func main() {
 	log.Println("  - Analytics Dashboard")
 	log.Println("  - Client-side routing")
 
-	err := http.ListenAndServe(":5050", mux)
+	err := http.ListenAndServe(":"+port, mux)
 	if err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
