@@ -37,7 +37,7 @@ body {
 }
 
 .sidebar-header {
-    margin-top: 2.5rem;
+    margin-top: 2rem;
     padding: 1rem 1rem;
     border-bottom: 2px solid rgb(255, 255, 255);
 }
@@ -827,11 +827,15 @@ body {
     }
     .logout-link {
         padding: 0.5rem;
-        margin-top: 18rem;
+        margin-top: 15rem;
         display: inline-flex;
         width: fit-content;
 }
-
+.sidebar-header {
+    margin-top: 2rem;
+    padding: 1rem 1rem;
+    border-bottom: 2px solid rgb(255, 255, 255);
+}
 /* Extra small screens (up to 480px) */
 @media (max-width: 480px) {
     .top-bar {
