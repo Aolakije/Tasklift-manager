@@ -5,7 +5,8 @@ import (
 	"html/template"
 	"net/http"
 	"time"
-	// "golang.org/x/crypto/bcrypt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var DB *sql.DB
@@ -21,15 +22,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		Logininput := r.FormValue("usernameorEmail")
+		loginInput := r.FormValue("usernameorEmail")
 		password := r.FormValue("password")
 
-		if Logininput == "" || password == "" {
+		if loginInput == "" || password == "" {
 			http.Error(w, "Username and password required", http.StatusBadRequest)
 			return
 		}
-		var storedPassword, storedUsername string
-		err := DB.QueryRow("SELECT username, password FROM users WHERE username = ? OR email = ?", Logininput, Logininput).Scan(&storedUsername, &storedPassword)
+
+		var storedHashedPassword, storedUsername string
+		err := DB.QueryRow("SELECT username, password FROM users WHERE username = ? OR email = ?",
+			loginInput, loginInput).Scan(&storedUsername, &storedHashedPassword)
+
 		if err == sql.ErrNoRows {
 			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 			return
@@ -38,19 +42,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if storedPassword != password {
+		// Compare the provided password with the stored hashed password
+		err = bcrypt.CompareHashAndPassword([]byte(storedHashedPassword), []byte(password))
+		if err != nil {
 			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 			return
 		}
 
-		// err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-		// if err != nil {
-		// 	http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		// 	return
-		// }
-
-		// Success
-		// Set session cookie with username
+		// Success - Set session cookie with username
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session_user",
 			Value:    storedUsername,
@@ -59,7 +58,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   false, // change to true if using HTTPS
 			Expires:  time.Now().Add(24 * time.Hour),
 		})
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther) // Change to your actual post-login route
+
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 	}
 }
 
@@ -69,6 +69,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./templates/register.html")
 		return
 	}
+
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		email := r.FormValue("email")
@@ -76,16 +77,24 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		confirm := r.FormValue("confirmPassword")
 
 		if username == "" || email == "" || password == "" || confirm == "" {
-			http.Error(w, "Username and password are required", http.StatusBadRequest)
+			http.Error(w, "All fields are required", http.StatusBadRequest)
 			return
 		}
 
-		// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		// if err != nil {
-		// 	http.Error(w, "Failed to hash password", http.StatusInternalServerError)
-		// 	return
-		// }
+		// Check if passwords match
+		if password != confirm {
+			http.Error(w, "Passwords do not match", http.StatusBadRequest)
+			return
+		}
 
+		// Hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+			return
+		}
+
+		// Store the HASHED password in the database
 		stmt, err := DB.Prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
 		if err != nil {
 			http.Error(w, "Database error", http.StatusInternalServerError)
@@ -93,14 +102,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		defer stmt.Close()
 
-		_, err = stmt.Exec(username, email, password)
+		// Use hashedPassword, NOT the plain password
+		_, err = stmt.Exec(username, email, string(hashedPassword))
 		if err != nil {
 			http.Error(w, "Username or email already exists", http.StatusConflict)
 			return
 		}
+
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 }
+
 func Dashboard(w http.ResponseWriter, r *http.Request) {
 	// Get the session cookie
 	cookie, err := r.Cookie("session_user")
@@ -108,19 +120,23 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
+
 	username := cookie.Value
+
 	// Serve the dashboard template with the username
 	tmpl, err := template.ParseFiles("./templates/dashboard.html")
 	if err != nil {
 		http.Error(w, "Could not load dashboard", http.StatusInternalServerError)
 		return
 	}
+
 	tmpl.Execute(w, struct {
 		Username string
 	}{
 		Username: username,
 	})
 }
+
 func Logout(w http.ResponseWriter, r *http.Request) {
 	// Clear the cookie
 	http.SetCookie(w, &http.Cookie{
@@ -130,5 +146,6 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(-1 * time.Hour),
 		HttpOnly: true,
 	})
+
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

@@ -12,7 +12,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", "./taskmanager.db")
+	DB, err = sql.Open("sqlite3", "./task-manager.db")
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
