@@ -1327,7 +1327,7 @@ function navigateTo(route) {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize router
     router = new TaskLiftRouter();
-
+    
     // Mobile sidebar toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -1337,6 +1337,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sidebar && sidebarOverlay) {
             sidebar.classList.toggle('active');
             sidebarOverlay.classList.toggle('active');
+            // Toggle hamburger button color
+            if (mobileMenuBtn) {
+                mobileMenuBtn.classList.toggle('active');
+                // Remove focus after clicking to prevent bars staying white
+                mobileMenuBtn.blur();
+            }
         }
     }
     
@@ -1356,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Toggle buttons in analytics card
     document.querySelectorAll('.toggle-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1364,7 +1370,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
         });
     });
-
+    
     // Filter buttons setup
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1383,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Search functionality
     const searchInput = document.querySelector('.search-input');
     if (searchInput) {

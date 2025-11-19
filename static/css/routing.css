@@ -769,8 +769,19 @@
     transition: background 0.3s ease !important;
 }
 
-.mobile-menu-toggle:hover span {
-    background: #eeeeee !important;  /* ← Lighter green on hover */
+.mobile-menu-toggle:hover span
+.mobile-menu-toggle:active span {
+    background: white !important;  /* ← Lighter green on hover */
+}
+
+/* When sidebar is open - bars turn white */
+.mobile-menu-toggle.active span {
+    background: white !important;
+}
+
+/* Override focus state when sidebar is closed */
+.mobile-menu-toggle:focus:not(.active) span {
+    background: #06392f !important;
 }
     
     /* Dark overlay when sidebar is open */
